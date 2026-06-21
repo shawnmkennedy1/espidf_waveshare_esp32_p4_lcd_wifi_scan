@@ -1,5 +1,8 @@
-# Name,   Type, SubType, Offset,  Size, Flags
-nvs,      data, nvs,     0x9000,  0x4000,
-otadata,  data, ota,     0xd000,  0x2000,
-phy_init, data, phy,     0xf000,  0x1000,
-factory,  app,  factory, 0x10000, 0xF00000,
+# =========================================================================
+# REVISION: v1.1.1 | 2026-06-07 | Fixed Partition Table Overlap Error
+# =========================================================================
+# Name,   Type, SubType, Offset,   Size,        Flags
+nvs,      data, nvs,     0xa000,   0x5000,
+phy_init, data, phy,     0xf000,   0x1000,
+factory,  app,  factory, 0x10000,  16M,
+storage,  data, spiffs,  ,         15M,

@@ -1,10 +1,29 @@
-# Keep the junk out
-**/build/
+# ── Generated build output (recreated by idf.py build) ──
 build/
+**/build/
+
+# ── Managed components (recreated from dependencies.lock) ──
+managed_components/
+
+# ── Python / tooling junk ──
 *.pyc
 __pycache__/
 venv/
 .venv/
 
-# Let the gold in (DO NOT IGNORE THESE)
-# We want to include managed_components and sdkconfig
+# ── Backup script artifacts ──
+*.ini
+
+# ── Editor / OS noise ──
+.DS_Store
+Thumbs.db
+
+# ════════════════════════════════════════════════════════
+# KEEP (tracked on purpose) — do NOT add these to ignore:
+#   main/                 your source
+#   CMakeLists.txt        project + main
+#   sdkconfig.defaults    your config (regenerates sdkconfig)
+#   partitions.csv        partition table
+#   dependencies.lock     pins exact component versions
+#   idf_component.yml     declares dependencies
+# ════════════════════════════════════════════════════════

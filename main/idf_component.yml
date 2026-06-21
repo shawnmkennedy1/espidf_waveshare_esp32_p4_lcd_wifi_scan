@@ -1,8 +1,10 @@
 ## IDF Component Manager Manifest File
 dependencies:
-  ## Required IDF version for ESP32-P4 MIPI DSI Support
   idf:
-    version: ">=5.3.0"
-    
-  ## High-level driver for the EK79007 LCD
-  espressif/esp_lcd_ek79007: "^2.0.2"
+    version: ">=5.5.3"
+  lvgl/lvgl:
+    version: "9.4.*"
+    public: true
+  espressif/esp_lvgl_adapter:
+    version: "0.3.*"
+    public: true

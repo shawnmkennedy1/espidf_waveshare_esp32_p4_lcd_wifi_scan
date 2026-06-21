@@ -1,8 +1,31 @@
 {
-    "idf.currentSetup": "C:\\esp\\v5.3.5\\esp-idf",
-    "idf.flashType": "UART",
-    "idf.portWin": "COM3",
-    "idf.customExtraVars": {
-        "IDF_TARGET": "esp32p4"
-    }
+  "C_Cpp.default.compilerPath": "C:\\Espressif\\tools\\riscv32-esp-elf\\esp-14.2.0_20260121\\riscv32-esp-elf\\bin\\riscv32-esp-elf-gcc.exe",
+  "C_Cpp.default.cStandard": "c11",
+  "C_Cpp.default.cppStandard": "c++17",
+  "C_Cpp.intelliSenseEngine": "default",
+  "C_Cpp.default.compileCommands": "${workspaceFolder}/build/compile_commands.json",
+  "idf.adapterTargetName": "esp32p4",
+  "idf.openOcdConfigs": [
+    "board/esp32p4-builtin.cfg"
+  ],
+  "idf.flashType": "UART",
+  "cSpell.words": [
+    "HRES",
+    "LVGL",
+    "VRES",
+    "esp"
+  ],
+  "idf.portWin": "COM3",
+  "idf.currentSetup": "C:\\esp\\v5.5.4\\esp-idf",
+  "idf.espIdfPath": "C:\\esp\\v5.5.4\\esp-idf",
+  "idf.toolsPath": "C:\\Espressif\\tools",
+  "idf.customExtraVars": {
+    "IDF_TARGET": "esp32p4"
+  },
+  "clangd.path": "C:\\Espressif\\tools\\esp-clang\\esp-19.1.2_20250312\\esp-clang\\bin\\clangd.exe",
+  "clangd.arguments": [
+    "--background-index",
+    "--query-driver=**",
+    "--compile-commands-dir=c:\\Users\\shawn\\Desktop\\espidf\\lvgl_demo_v9\\build"
+  ]
 }
