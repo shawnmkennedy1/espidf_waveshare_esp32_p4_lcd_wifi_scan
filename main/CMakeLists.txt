@@ -8,6 +8,9 @@ idf_component_register(
     SRCS
         "main.c"
         "lvgl_adapter_init.c"
+        "touch_test.c"
+        "wifi_scan_ui.c"
+        "wifi_conn.c"
         "esp_lcd_ek79007.c"
         ${LV_DEMOS_SOURCES}
     INCLUDE_DIRS
@@ -15,10 +18,15 @@ idf_component_register(
         "${LV_DEMO_DIR}"
     REQUIRES
         espressif__esp_lvgl_adapter
+        espressif__esp_lcd_touch_gt911
         lvgl__lvgl
         esp_lcd
         esp_hw_support
         driver
+        esp_driver_i2c
+        esp_wifi
+        esp_event
+        esp_netif
     PRIV_REQUIRES
         nvs_flash
 )

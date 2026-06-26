@@ -26,7 +26,7 @@ CONFIG_SPIRAM_SPEED_200M=y
 CONFIG_SPIRAM_XIP_FROM_PSRAM=y
 CONFIG_CACHE_L2_CACHE_256KB=y
 CONFIG_CACHE_L2_CACHE_LINE_128B=y
-CONFIG_ESP_MAIN_TASK_STACK_SIZE=32768
+CONFIG_ESP_MAIN_TASK_STACK_SIZE=8192
 CONFIG_FREERTOS_HZ=1000
 CONFIG_FREERTOS_VTASKLIST_INCLUDE_COREID=y
 CONFIG_FREERTOS_GENERATE_RUN_TIME_STATS=y
@@ -61,3 +61,25 @@ CONFIG_SECURE_BOOT=n
 CONFIG_SECURE_FLASH_ENC_ENABLED=n
 CONFIG_EFUSE_VIRTUAL=y
 CONFIG_EFUSE_VIRTUAL_KEEP_IN_FLASH=n
+
+# =========================================================================
+# REVISION: v1.7.0 | 2026-06-21 | WiFi via onboard ESP32-C6 over SDIO
+# =========================================================================
+CONFIG_SLAVE_IDF_TARGET_ESP32C6=y
+CONFIG_ESP_WIFI_REMOTE_LIBRARY_HOSTED=y
+CONFIG_ESP_HOSTED_SDIO_HOST_INTERFACE=y
+
+# =========================================================================
+# REVISION: v1.9.0 | 2026-06-21 | Fix sdio_mempool_create "no mem" assert
+# =========================================================================
+# The esp_hosted SDIO mempool pre-allocates a block of DMA-capable INTERNAL
+# RAM at startup; with the LVGL display already using internal RAM, that
+# allocation fails and sdio_drv.c asserts (buf_mp_g). Disabling the mempool
+# makes esp_hosted allocate buffers per-packet from the general heap (which
+# can spill to PSRAM) instead. Slightly slower, but it boots and connects.
+CONFIG_ESP_HOSTED_USE_MEMPOOL=n
+
+# Keep WiFi/lwIP buffers in PSRAM to leave internal RAM free.
+CONFIG_SPIRAM_USE_MALLOC=y
+CONFIG_SPIRAM_TRY_ALLOCATE_WIFI_LWIP=y
+CONFIG_SPIRAM_MALLOC_RESERVE_INTERNAL=32768

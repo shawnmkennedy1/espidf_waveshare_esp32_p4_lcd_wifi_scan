@@ -1,5 +1,5 @@
 # ==============================================================================
-# PROJECT: lvgl_demo_v9
+# PROJECT: espid_waveshare_esp32-p4-lcd_lvgl_demo_v9
 # FILE: CMakeLists.txt
 #
 # REVISION HISTORY:
@@ -37,4 +37,4 @@ add_compile_options(-Wno-unused-function)
 # Clean up generic BSP calls since we initialize the MIPI DSI display driver directly
 add_compile_definitions(BSP_CONFIG_NO_GRAPHIC_LIB=1)
 
-project(lvgl_demo_v9)
+project(espid_waveshare_esp32-p4-lcd_lvgl_demo_v9)

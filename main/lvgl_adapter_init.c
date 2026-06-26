@@ -2,13 +2,10 @@
  * SPDX-FileCopyrightText: 2026 Espressif Systems (Shanghai) CO LTD
  * SPDX-License-Identifier: Apache-2.0
  *
- * Manual LVGL display setup that bypasses esp_lv_adapter_register_display().
- * The adapter's own flush modes never presented on this panel, but a direct
- * esp_lcd_panel_draw_bitmap() call provably does (red-screen test passed).
- * So we drive LVGL's flush callback straight to draw_bitmap.
- *
- * We still call esp_lv_adapter_init() — it gives us the LVGL tick timer,
- * the worker task that calls lv_timer_handler(), and the lock used in main.c.
+ * Manual LVGL display setup. Panel-level mirror (MADCTL) is not honored by
+ * this EK79007 panel, so the 180-degree flip is done in software in the flush
+ * callback: each rendered region is rotated 180 into a scratch buffer and the
+ * draw_bitmap target coordinates are remapped to the opposite corner.
  */
 #include "lvgl_adapter_init.h"
 #include "esp_check.h"
@@ -33,30 +30,40 @@ static const char *TAG = "lvgl_adapter_init";
 #define MIPI_DSI_PHY_LDO_VOLTAGE_MV     2500
 #define MIPI_DSI_LANE_NUM               2
 
-// Draw-buffer height for LVGL partial rendering (lines).
 #define LVGL_DRAW_BUF_LINES             100
 
-static esp_lcd_panel_handle_t s_panel = NULL;
+// Set to 1 for 180-degree software rotation (panel mounted upside down).
+#define ROTATE_180                      1
 
-// LVGL v9 flush callback — uses the exact call proven to work (draw_bitmap).
+static esp_lcd_panel_handle_t s_panel = NULL;
+static uint16_t *s_rot_buf = NULL;   // scratch buffer for rotated region
+
 static void lvgl_flush_cb(lv_display_t *disp, const lv_area_t *area, uint8_t *px_map)
 {
-    static int flush_count = 0;
-    int x1 = area->x1;
-    int y1 = area->y1;
-    int x2 = area->x2;
-    int y2 = area->y2;
+    int x1 = area->x1, y1 = area->y1, x2 = area->x2, y2 = area->y2;
 
-    if (flush_count < 5) {
-        ESP_LOGW(TAG, "FLUSH #%d area x:%d-%d y:%d-%d", flush_count, x1, x2, y1, y2);
-        flush_count++;
+#if ROTATE_180
+    int w = x2 - x1 + 1;
+    int h = y2 - y1 + 1;
+    uint16_t *src = (uint16_t *)px_map;
+    uint16_t *dst = s_rot_buf;
+
+    // Rotate the region 180 deg: reverse pixel order
+    int n = w * h;
+    for (int i = 0; i < n; i++) {
+        dst[i] = src[n - 1 - i];
     }
 
-    // draw_bitmap expects exclusive end coords (x2+1, y2+1)
-    esp_err_t r = esp_lcd_panel_draw_bitmap(s_panel, x1, y1, x2 + 1, y2 + 1, px_map);
-    if (r != ESP_OK && flush_count <= 5) {
-        ESP_LOGE(TAG, "draw_bitmap err: %s", esp_err_to_name(r));
-    }
+    // Remap destination rectangle to the opposite corner of the screen
+    int nx1 = WAVESHARE_LCD_H_RES - 1 - x2;
+    int ny1 = WAVESHARE_LCD_V_RES - 1 - y2;
+    int nx2 = WAVESHARE_LCD_H_RES - 1 - x1;
+    int ny2 = WAVESHARE_LCD_V_RES - 1 - y1;
+
+    esp_lcd_panel_draw_bitmap(s_panel, nx1, ny1, nx2 + 1, ny2 + 1, dst);
+#else
+    esp_lcd_panel_draw_bitmap(s_panel, x1, y1, x2 + 1, y2 + 1, px_map);
+#endif
 
     lv_display_flush_ready(disp);
 }
@@ -147,11 +154,20 @@ lv_display_t *lvgl_adapter_init(const bsp_display_cfg_t *cfg)
     lv_display_set_color_format(disp, LV_COLOR_FORMAT_RGB565);
     lv_display_set_flush_cb(disp, lvgl_flush_cb);
 
-    // Two partial draw buffers in PSRAM
     size_t buf_px = (size_t)hres * LVGL_DRAW_BUF_LINES;
     size_t buf_bytes = buf_px * sizeof(uint16_t);
     void *buf1 = heap_caps_malloc(buf_bytes, MALLOC_CAP_SPIRAM);
     void *buf2 = heap_caps_malloc(buf_bytes, MALLOC_CAP_SPIRAM);
+
+#if ROTATE_180
+    // scratch buffer for the rotated copy (same size as a draw buffer)
+    s_rot_buf = heap_caps_malloc(buf_bytes, MALLOC_CAP_SPIRAM);
+    if (!s_rot_buf) {
+        ESP_LOGE(TAG, "rot buffer alloc failed");
+        return NULL;
+    }
+#endif
+
     if (!buf1 || !buf2) {
         ESP_LOGE(TAG, "draw buffer alloc failed");
         return NULL;

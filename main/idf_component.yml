@@ -8,3 +8,16 @@ dependencies:
   espressif/esp_lvgl_adapter:
     version: "0.3.*"
     public: true
+  espressif/esp_lcd_touch_gt911:
+    version: "^1.1.0"
+    public: true
+  # --- WiFi via onboard ESP32-C6 (host=P4, slave=C6 over SDIO) ---
+  # esp_wifi_remote wraps the normal esp_wifi API and forwards calls to the
+  # C6. Must be >=1.2.0 for IDF 5.5.x patch releases (5.5.4); older versions
+  # (e.g. 0.14.*) hit a Kconfig bug and fail with slave target "invalid".
+  # esp_hosted is the RPC backend and is pulled in transitively, but pinned
+  # here so the version is explicit.
+  espressif/esp_wifi_remote:
+    version: "^1.2.0"
+  espressif/esp_hosted:
+    version: "*"
